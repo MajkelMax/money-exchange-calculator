@@ -8,10 +8,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +57,28 @@ public class CurrencyConverterController {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Please input proper request body!");
+    }
+
+    @GetMapping("/currency")
+    public ResponseEntity<?> getAllCurrency() {
+        List<Currency> currencies
+                = ExchangeRateService.getCurrencies();
+        return ResponseEntity.ok()
+                .body(currencies);
+    }
+
+    @GetMapping("/currency/{code}")
+    public ResponseEntity<?> getCurrencyByCode(@PathVariable String code) {
+        Optional<Currency> optCurrency = CurrencyConverterUtils.getCurrency(
+                ExchangeRateService.getCurrencies(), code);
+
+        if (optCurrency.isPresent()) {
+            return ResponseEntity.ok()
+                    .body(optCurrency.get());
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Currency with given code not found!");
     }
 
 
